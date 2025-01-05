@@ -80,29 +80,31 @@ async def start(update: Update, context: CallbackContext) -> None:
         os.makedirs(user_folder)
 
     welcome_message = """
-    Welcome to SpyX Bot 🔍
+Welcome Agent, I'm SpyX Bot 🕵️‍♂️
 
-What can this bot do?
+What can i do?
 
 Track Your Favorite KOLs:
-Stay ahead by tracking key opinion leaders (KOLs) or any Twitter account. Receive instant notifications when they follow a new user or project.
+Stay one step ahead by surveilling key opinion leaders (KOLs) or any Twitter account. Get instant intel when they follow a new user or project.
 
-    EXAMPLE FOLLOWING ALERT 👇
+*Classified Notice*: Even spies need to rest. If I've been off the grid, there might be a brief delay while I recalibrate my systems. Your patience is appreciated, comrade.
 
-    <a href="https://twitter.com/dogecoin">@dogecoin</a> ← is followed by <a href="https://twitter.com/elonmusk">@elonmusk</a>
+    EXAMPLE INTELLIGENCE ALERT 👇
 
-    Details of Dogecoin:
+    <a href="https://twitter.com/dogecoin">@dogecoin</a> ← now followed by <a href="https://twitter.com/elonmusk">@elonmusk</a>
 
-    •🗒 Bio: "Dogecoin is an open source peer-to-peer cryptocurrency, favored by shibas worldwide. Elon Musk thinks we're pretty cool. [RTs are not endorsements]"
+    Dossier on Dogecoin:
 
-    •📍 Location: the moon
+    •🗒 Cover: "Dogecoin is an open source peer-to-peer cryptocurrency, favored by shibas worldwide. Elon Musk thinks we're pretty cool. [RTs are not endorsements]"
 
-    •👥 Followers: 4,200,000
+    •📍 Base of Operations: the moon
 
-    •📅 Account created: 01-12-2013 (4000 days ago)
+    •👥 Allies: 4,200,000
 
-    •✅ Verified: Yes
-    """
+    •📅 Activation Date: 01-12-2013 (4000 days ago)
+
+    •✅ Verified Agent: Yes
+"""
     await update.message.reply_text(welcome_message, parse_mode='HTML')
 
 # Delete command with confirmation
@@ -198,14 +200,16 @@ async def list_tracked(update: Update, context: CallbackContext) -> None:
 # Help command
 async def help(update: Update, context: CallbackContext) -> None:
     help_message = """
-📜 Here are the commands you can use:
-/start - Get a welcome message and bot description.
-/add <username> - Start tracking a Twitter account.
-/remove <username> - Stop tracking a Twitter account.
-/list - Show the list of tracked accounts.
-/update - Update the following list for tracked Twitter accounts (manually).
-/delete - Delete all stored user data (requires confirmation).
-/help - Get a list of all available commands.
+📜 Here are your mission directives:
+/start - Begin your covert operation with a briefing. (Activate me if I've gone dark!)
+/add <username> - Initiate surveillance on a Twitter account. (I'll keep watch, even if I'm in the shadows!)
+/remove <username> - Discontinue surveillance on an account. (I'll erase their trace before my next mission!)
+/list - Review the list of monitored targets. (I'll share the intel once I decrypt the data!)
+/update - Manually update tracking data. (Might require recalibration of my gadgets!)
+/delete_all - Erase all mission data. (Confirm to burn after reading!)
+/help - Get a refresher on your spy toolkit. (I'm here to assist, even if I've been out of contact!)
+
+*Note*: If you engage me after a period of radio silence, there might be a delay while I reconnect to the network.
 """
     await update.message.reply_text(help_message)
 
