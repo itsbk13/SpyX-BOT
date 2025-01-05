@@ -1,14 +1,12 @@
-import os
 from flask import Flask
+import os
 
 app = Flask(__name__)
 
-# Use the environment variable or default to 8080
-port = os.getenv("PORT", 8080)
-
 @app.route('/')
 def home():
-    return "Hello World!"
+    return "Hello, this is your bot's web service!"
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    port = os.environ.get('PORT', 10000)
     app.run(host='0.0.0.0', port=port)
