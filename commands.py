@@ -80,20 +80,21 @@ async def start(update: Update, context: CallbackContext) -> None:
         os.makedirs(user_folder)
 
     welcome_message = """
-Welcome Agent, I'm SpyX Bot 🕵️‍♂️
+Welcome, Agent SpyX 🕵️‍♂️
 
-What can i do?
+What i can do?
 
 Track Your Favorite KOLs:
 Stay one step ahead by surveilling key opinion leaders (KOLs) or any Twitter account. Get instant intel when they follow a new user or project.
 
-*Classified Notice*: Even spies need to rest. If I've been off the grid, there might be a brief delay while I recalibrate my systems. Your patience is appreciated, comrade.
+Classified Notice:
+Even spies need to rest. If I've been off the grid, there might be a brief delay while I recalibrate my systems. Your patience is appreciated, comrade.
 
     EXAMPLE INTELLIGENCE ALERT 👇
 
     <a href="https://twitter.com/dogecoin">@dogecoin</a> ← now followed by <a href="https://twitter.com/elonmusk">@elonmusk</a>
 
-    Dossier on Dogecoin:
+    Details on Dogecoin:
 
     •🗒 Cover: "Dogecoin is an open source peer-to-peer cryptocurrency, favored by shibas worldwide. Elon Musk thinks we're pretty cool. [RTs are not endorsements]"
 
@@ -201,15 +202,15 @@ async def list_tracked(update: Update, context: CallbackContext) -> None:
 async def help(update: Update, context: CallbackContext) -> None:
     help_message = """
 📜 Here are your mission directives:
-/start - Begin your covert operation with a briefing. (Activate me if I've gone dark!)
+/start - Begin your covert operation with a briefing.
 /add <username> - Initiate surveillance on a Twitter account. (I'll keep watch, even if I'm in the shadows!)
 /remove <username> - Discontinue surveillance on an account. (I'll erase their trace before my next mission!)
 /list - Review the list of monitored targets. (I'll share the intel once I decrypt the data!)
 /update - Manually update tracking data. (Might require recalibration of my gadgets!)
 /delete_all - Erase all mission data. (Confirm to burn after reading!)
-/help - Get a refresher on your spy toolkit. (I'm here to assist, even if I've been out of contact!)
+/help - Get a refresher on your spy toolkit.
 
-*Note*: If you engage me after a period of radio silence, there might be a delay while I reconnect to the network.
+Note: If you engage me after a period of radio silence, there might be a delay while I reconnect to the network.
 """
     await update.message.reply_text(help_message)
 
