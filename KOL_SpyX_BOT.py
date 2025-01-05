@@ -5,15 +5,23 @@ from config import USER_DATA_FOLDER, API_TOKEN
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler
 from telegram.error import NetworkError, TimedOut
 from commands import start, delete_all_command, button, add, remove, list_tracked, help, update_command
-import database  # Importing database logic from the separate file
+import database  
 import time
 import httpx
 import logging
 from logger import logger
 import random
+from flask import Flask, request
+from threading import Thread
+import signal
+import sys
 
-# Use the logger from logger.py
-logger = logging.getLogger('KOL_SpyX_Bot')
+# Initialize Flask app for dummy endpoint
+app = Flask(__name__)
+
+@app.route('/')
+def dummy_endpoint():
+    return "Bot is running"
 
 def retry_request(func, retries=3, initial_delay=5, backoff_factor=2, max_delay=60):
     """Retries a function with exponential backoff in case of NetworkError or TimedOut."""
@@ -57,6 +65,18 @@ def check_internet():
         logger.error(f"Internet connection issue: {e}")
     return False
 
+def stop_flask_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+def signal_handler(signum, frame):
+    logger.info("Received interrupt signal. Shutting down gracefully.")
+    if 'flask_thread' in globals() and flask_thread.is_alive():
+        stop_flask_server()
+    sys.exit(0)
+
 def main():
     try:
         # Ensure tables are created
@@ -88,6 +108,15 @@ def main():
                 time.sleep(10)
                 continue  # Restart the loop to check internet again
 
+            # Run both Flask server and Telegram bot in separate threads
+            def run_flask():
+                port = int(os.environ.get('PORT', 5000))
+                app.run(host='0.0.0.0', port=port)
+
+            global flask_thread
+            flask_thread = Thread(target=run_flask)
+            flask_thread.start()
+
             # Run the bot with retry logic for network issues
             logger.info("Bot started running")
             retry_request(lambda: application.run_polling(), retries=5, initial_delay=10, backoff_factor=2, max_delay=60)
@@ -108,8 +137,12 @@ def main():
             time.sleep(60)  # Wait before retrying
         except KeyboardInterrupt:
             logger.info("Bot execution interrupted by user. Exiting gracefully.")
-    # Add any cleanup code here if needed
             break  # Exit the while loop
 
+    # Add any cleanup code here if needed
+
 if __name__ == '__main__':
+    # Register the signal handler for graceful shutdown
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
     main()
