@@ -210,7 +210,7 @@ async def help(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(help_message)
 
 def run_update_followers():
-    script_path = os.path.join(os.path.dirname(__file__), "scripts", "update_script.py")
+    script_path = os.path.join(os.path.dirname(__file__), "update_script.py")
     subprocess.run(['python', script_path])
 
 async def update_command(update: Update, context: CallbackContext) -> None:

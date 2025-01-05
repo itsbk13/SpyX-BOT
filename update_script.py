@@ -27,7 +27,7 @@ if not API_TOKEN:
     sys.exit(1)
 
 bot = Bot(token=API_TOKEN)
-USER_DATA_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), "userdata")
+USER_DATA_FOLDER = os.path.join(os.path.dirname(__file__), "userdata")
 
 # Ensure the common data directory exists
 common_data_dir = os.path.join(USER_DATA_FOLDER, "common_data")
