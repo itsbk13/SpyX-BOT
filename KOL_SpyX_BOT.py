@@ -23,6 +23,11 @@ app = Flask(__name__)
 def dummy_endpoint():
     return "Bot is running"
 
+
+@app.route('/healthz')
+def health_check():
+    return "OK", 200
+    
 def retry_request(func, retries=3, initial_delay=5, backoff_factor=2, max_delay=60):
     """Retries a function with exponential backoff in case of NetworkError or TimedOut."""
     attempt = 0
