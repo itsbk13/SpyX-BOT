@@ -1,18 +1,14 @@
+import os
 from flask import Flask
-import threading
-import time
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return 'Bot is running!'
+# Use the environment variable or default to 8080
+port = os.getenv("PORT", 8080)
 
-def track_followers():
-    while True:
-        print("Tracking followers...")
-        time.sleep(3600)  # Check every hour
+@app.route('/')
+def home():
+    return "Hello World!"
 
 if __name__ == "__main__":
-    threading.Thread(target=track_followers).start()  # Start background task
-    app.run(host="0.0.0.0", port=8080)  # Start Flask server to bind to port 8080
+    app.run(host='0.0.0.0', port=port)
