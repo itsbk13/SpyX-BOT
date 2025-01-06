@@ -92,7 +92,7 @@ Even spies need to rest. If I've been off the grid, there might be a brief delay
 
     EXAMPLE INTELLIGENCE ALERT 👇
 
-    <a href="https://twitter.com/dogecoin">@dogecoin</a> ← now followed by <a href="https://twitter.com/elonmusk">@elonmusk</a>
+ <a href="https://twitter.com/dogecoin">@dogecoin</a> ← now followed by <a href="https://twitter.com/elonmusk">@elonmusk</a>
 
     Details on Dogecoin:
 
