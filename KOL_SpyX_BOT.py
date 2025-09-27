@@ -1,11 +1,11 @@
 import os
 import requests
 from requests.exceptions import RequestException
-from config import USER_DATA_FOLDER, bot  # Import bot from config
+from config import USER_DATA_FOLDER, API_TOKEN
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler
 from telegram.error import NetworkError, TimedOut
 from commands import start, delete_all_command, button, add, remove, list_tracked, help, update_command
-import database  
+import database
 import time
 import httpx
 import logging
@@ -19,7 +19,7 @@ import sys
 # Use the logger from logger.py
 logger = logging.getLogger('KOL_SpyX_Bot')
 
-# Initialize Flask app for dummy endpoints
+# Initialize Flask app for dummy endpoint
 app = Flask(__name__)
 
 @app.route('/')
@@ -29,7 +29,7 @@ def dummy_endpoint():
 @app.route('/healthz')
 def health_check():
     return "OK", 200
-    
+
 def retry_request(func, retries=3, initial_delay=5, backoff_factor=2, max_delay=60):
     """Retries a function with exponential backoff in case of NetworkError or TimedOut."""
     attempt = 0
@@ -39,13 +39,13 @@ def retry_request(func, retries=3, initial_delay=5, backoff_factor=2, max_delay=
             return func()  # Execute the passed function
         except (NetworkError, TimedOut) as e:
             attempt += 1
-            jitter = random.uniform(0, 1)  # Add some randomness to prevent synchronized retries
-            delay = min(delay * backoff_factor + jitter, max_delay)  # Ensure delay doesn't exceed max_delay
+            jitter = random.uniform(0, 1)  # Add some randomness
+            delay = min(delay * backoff_factor + jitter, max_delay)
             logger.error(f"Attempt {attempt} failed: {e}. Retrying in {delay:.2f} seconds...")
             time.sleep(delay)
         except Exception as e:
             logger.error(f"Non-recoverable error occurred: {e}")
-            raise  # Re-raise the exception if it's not retryable
+            raise
     logger.error(f"Failed after {retries} attempts.")
     return None
 
@@ -58,11 +58,11 @@ common_data_folder = os.path.join(USER_DATA_FOLDER, "common_data")
 if not os.path.exists(common_data_folder):
     os.makedirs(common_data_folder)
 
-# Log some startup info
+# Log startup info
 logger.info("Starting KOL_SpyX_BOT...")
 
 def check_internet():
-    """Check internet connectivity by attempting to reach Google and Twitter."""
+    """Check internet connectivity."""
     try:
         for url in ['https://www.icanhazip.com']:
             response = requests.get(url, timeout=5)
@@ -94,7 +94,7 @@ def main():
 
     while True:  # Keep the bot running indefinitely
         try:
-            application = Application.builder().bot(bot).build()  # Use bot from config
+            application = Application.builder().token(API_TOKEN).build()
             logger.info("Telegram bot application initialized successfully.")
 
             # Add handlers for commands
@@ -106,29 +106,27 @@ def main():
             application.add_handler(CallbackQueryHandler(button))
             application.add_handler(CommandHandler("help", help))
             application.add_handler(CommandHandler("update", update_command))
-
             logger.info("Command handlers added successfully.")
 
-            # Check internet connection and start the bot, retry if no internet
+            # Check internet connection
             if not retry_request(check_internet):
-                logger.error("Failed to connect to internet after multiple attempts. Restarting in 10 seconds...")
+                logger.error("Failed to connect to internet. Restarting in 10 seconds...")
                 time.sleep(10)
-                continue  # Restart the loop to check internet again
+                continue
 
-            # Run both Flask server and Telegram bot in separate threads
+            # Run Flask and Telegram bot in separate threads
             def run_flask():
-                port = int(os.environ.get('PORT', 10000))  # Changed default to 10000
+                port = int(os.environ.get('PORT', 5000))
                 app.run(host='0.0.0.0', port=port)
 
             global flask_thread
             flask_thread = Thread(target=run_flask)
             flask_thread.start()
 
-            # Run the bot with retry logic for network issues
+            # Run bot with retry logic
             logger.info("Bot started running")
             retry_request(lambda: application.run_polling(), retries=5, initial_delay=10, backoff_factor=2, max_delay=60)
-            # If we've made it here, we'll sleep for a bit before the next check to prevent tight loops
-            time.sleep(60)  # Sleep for a minute before next cycle
+            time.sleep(60)
 
         except NetworkError as ne:
             logger.error(f"NetworkError occurred: {ne}")
@@ -141,15 +139,13 @@ def main():
         except Exception as e:
             logger.error(f"Unexpected error during bot execution: {e}")
             logger.error("Bot stopped unexpectedly. Restarting in 60 seconds...")
-            time.sleep(60)  # Wait before retrying
+            time.sleep(60)
         except KeyboardInterrupt:
             logger.info("Bot execution interrupted by user. Exiting gracefully.")
-            break  # Exit the while loop
-
-    # Add any cleanup code here if needed
+            break
 
 if __name__ == '__main__':
-    # Register the signal handler for graceful shutdown
+    # Register signal handler for graceful shutdown
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     main()
