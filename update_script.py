@@ -11,11 +11,7 @@ import logging
 from dotenv import load_dotenv
 import random
 
-dotenv_path = '/etc/secrets/.env'
-if os.path.exists(dotenv_path):
-    load_dotenv(dotenv_path=dotenv_path)
-else:
-    load_dotenv()
+load_dotenv()
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -95,12 +91,10 @@ def fetch_new_followers(tracked_account):
     if os.path.exists(csv_path):
         try:
             followers_df = pd.read_csv(csv_path)
-            normalized_data = {
-                sql_col: followers_df[csv_col] if csv_col in followers_df.columns else 
-                         (0 if sql_col in ["blue_verified", "followers_count"] else 
-                          (datetime.now().strftime('%Y-%m-%d %H:%M:%S') if sql_col == "created_at" else None))
-                for csv_col, sql_col in required_columns.items()
-            }
+            normalized_data = {sql_col: followers_df[csv_col] if csv_col in followers_df.columns else 
+                               (0 if sql_col in ["blue_verified", "followers_count"] else 
+                                (datetime.now().strftime('%Y-%m-%d %H:%M:%S') if sql_col == "created_at" else None))
+                               for csv_col, sql_col in required_columns.items()}
             normalized_df = pd.DataFrame(normalized_data)
             os.remove(csv_path)
             logger.info(f"CSV for {tracked_account} processed and deleted.")
@@ -110,7 +104,6 @@ def fetch_new_followers(tracked_account):
     else:
         logger.warning(f"No CSV found for {tracked_account}.")
     return pd.DataFrame(columns=required_columns.values())
-
 def insert_followers_to_db(db_path: str, followers: pd.DataFrame) -> None:
     try:
         if not followers.empty:
@@ -125,7 +118,7 @@ def insert_followers_to_db(db_path: str, followers: pd.DataFrame) -> None:
                                           (user_id, name, username, bio, profile_url, 
                                            followers_count, created_at, blue_verified, location)
                                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
-                                       tuple(follower))
+                                          tuple(follower))
                         logger.info(f"Inserted new follower {follower['username']} into {db_path}")
                     else:
                         logger.info(f"Skipped duplicate follower {follower['username']} in {db_path}")
@@ -135,7 +128,7 @@ def insert_followers_to_db(db_path: str, followers: pd.DataFrame) -> None:
             logger.info(f"No followers to insert into {db_path}")
     except sqlite3.Error as e:
         logger.error(f"Error inserting followers into {db_path}: {e}")
-
+        
 async def send_follower_notification(chat_id, follower_details):
     created_at_date = datetime.strptime(follower_details['created_at'], "%a %b %d %H:%M:%S %z %Y")
     days_ago = (datetime.now(created_at_date.tzinfo) - created_at_date).days
@@ -229,9 +222,9 @@ async def update_followers(chat_id, tracked_account):
                                 (user_id, name, username, bio, profile_url, followers_count, created_at, blue_verified, location) 
                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
                                 follower[1:])  # Excluding the ID column
-                            # Prepare the dictionary for notification
+                            # Prepare the dictionary for notification, excluding tracked_account since it's not in the schema
                             follower_details = dict(zip(required_columns.values(), follower[1:]))
-                            follower_details['tracked_account'] = tracked_account  # Add for notification
+                            follower_details['tracked_account'] = tracked_account  # Add for notification purposes only
                             await send_follower_notification(chat_id, follower_details)
                         else:
                             logger.info(f"Follower {username} already exists in user {chat_id}'s database for {tracked_account}. Skipping.")
@@ -257,6 +250,7 @@ async def process_all_users():
             logger.error(f"Error processing user {chat_id}: {e}")
 
     if tasks:
+        # Use asyncio.gather with a timeout to manage long-running tasks
         try:
             await asyncio.wait_for(asyncio.gather(*tasks), timeout=300)  # 5 minutes timeout
         except asyncio.TimeoutError:
