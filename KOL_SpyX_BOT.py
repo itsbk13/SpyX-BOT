@@ -11,7 +11,7 @@ sys.path.insert(0, current_dir)
 from logger import logger
 from config import bot
 
-# Simple Flask app
+# Simple Flask apps
 app = Flask(__name__)
 
 @app.route('/')
