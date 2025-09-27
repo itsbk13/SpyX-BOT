@@ -1,15 +1,11 @@
 from telegram import Bot
 import os
 from telegram.request import HTTPXRequest
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
 
 # Retrieve API Token, raise an exception if not found
-API_TOKEN = os.getenv('API_TOKEN')
+API_TOKEN = os.environ.get('API_TOKEN')
 if not API_TOKEN:
-    raise ValueError("API Token is missing! Please set it in the .env file.")
+    raise ValueError("API Token is missing! Please set it in Render Environment Variables.")
 
 # Configure Bot with custom request handler for better performance
 bot = Bot(token=API_TOKEN, 
