@@ -1,7 +1,7 @@
 import os
 import requests
 from requests.exceptions import RequestException
-from config import USER_DATA_FOLDER, API_TOKEN
+from config import USER_DATA_FOLDER, bot
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler
 from telegram.error import NetworkError, TimedOut
 from commands import start, delete_all_command, button, add, remove, list_tracked, help, update_command
@@ -95,7 +95,7 @@ def main():
 
     while True:  # Keep the bot running indefinitely
         try:
-            application = Application.builder().token(API_TOKEN).build()
+            application = Application.builder().bot(bot).build() 
             logger.info("Telegram bot application initialized successfully.")
 
             # Add handlers for commands
