@@ -8,47 +8,29 @@ import sqlite3
 import telegram 
 from telegram import Bot
 import logging
+import random
 
-# Add current directory to Python path for imports
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, current_dir)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import after path setup
-try:
-    from database import get_tracked_accounts
-    from logger import logger
-except ImportError as e:
-    print(f"Import error: {e}")
-    sys.exit(1)
+from database import get_tracked_accounts
+from logger import logger
 
 # Use the logger from logger.py
 logger = logging.getLogger('KOL_SpyX_Bot')
 
-# Get API token from environment variables
-API_TOKEN = os.environ.get('API_TOKEN') or os.getenv('API_TOKEN')
+# Get API Token from environment variables (Render)
+API_TOKEN = os.environ.get('API_TOKEN')
 if not API_TOKEN:
-    logger.error("API_TOKEN not set in environment. Available env vars with 'TOKEN' or 'API':")
-    for key in sorted(os.environ.keys()):
-        if 'TOKEN' in key.upper() or 'API' in key.upper():
-            logger.error(f"  {key}")
+    logger.error("API_TOKEN not set in environment. Exiting.")
     sys.exit(1)
 
-logger.info(f"API Token found: {API_TOKEN[:10]}...")
-
-try:
-    bot = Bot(token=API_TOKEN)
-    logger.info("Bot initialized successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize bot: {e}")
-    sys.exit(1)
-
-USER_DATA_FOLDER = os.path.join(current_dir, "userdata")
+bot = Bot(token=API_TOKEN)
+USER_DATA_FOLDER = os.path.join(os.path.dirname(__file__), "userdata")
 
 # Ensure the common data directory exists
 common_data_dir = os.path.join(USER_DATA_FOLDER, "common_data")
 if not os.path.exists(common_data_dir):
     os.makedirs(common_data_dir)
-    logger.info(f"Created common data directory: {common_data_dir}")
 
 # The required columns for the CSV files
 required_columns = {
@@ -145,15 +127,10 @@ def insert_followers_to_db(db_path: str, followers: pd.DataFrame) -> None:
             logger.info(f"No followers to insert into {db_path}")
     except sqlite3.Error as e:
         logger.error(f"Error inserting followers into {db_path}: {e}")
-        
+
 async def send_follower_notification(chat_id, follower_details):
-    try:
-        created_at_date = datetime.strptime(follower_details['created_at'], "%a %b %d %H:%M:%S %z %Y")
-        days_ago = (datetime.now(created_at_date.tzinfo) - created_at_date).days
-    except (ValueError, TypeError) as e:
-        logger.warning(f"Error parsing date for {follower_details.get('username', 'unknown')}: {e}")
-        created_at_date = datetime.now()
-        days_ago = 0
+    created_at_date = datetime.strptime(follower_details['created_at'], "%a %b %d %H:%M:%S %z %Y")
+    days_ago = (datetime.now(created_at_date.tzinfo) - created_at_date).days
 
     location = follower_details['location'] if pd.notna(follower_details['location']) else " - "
     bio = follower_details.get('bio', " - ")
@@ -179,7 +156,6 @@ async def send_follower_notification(chat_id, follower_details):
     for attempt in range(max_retries):
         try:
             await bot.send_message(chat_id=chat_id, text=message, parse_mode='HTML')
-            logger.info(f"Notification sent to chat {chat_id} for {follower_details['username']}")
             break
         except telegram.error.TimedOut:
             await asyncio.sleep(5 * (attempt + 1))  # Exponential backoff
@@ -263,22 +239,9 @@ async def update_followers(chat_id, tracked_account):
 
 async def process_all_users():
     tasks = []
-    
-    # Check if USER_DATA_FOLDER exists and contains user directories
-    if not os.path.exists(USER_DATA_FOLDER):
-        logger.warning(f"User data folder does not exist: {USER_DATA_FOLDER}")
-        return
-    
-    user_dirs = [d for d in os.listdir(USER_DATA_FOLDER) 
-                 if os.path.isdir(os.path.join(USER_DATA_FOLDER, d)) and d.isdigit()]
-    
-    logger.info(f"Found {len(user_dirs)} user directories: {user_dirs}")
-    
-    for chat_id in user_dirs:
+    for chat_id in [chat_id for chat_id in os.listdir(USER_DATA_FOLDER) if os.path.isdir(os.path.join(USER_DATA_FOLDER, chat_id))]:
         try:
             tracked_accounts = get_tracked_accounts(chat_id)
-            logger.info(f"User {chat_id} tracks {len(tracked_accounts)} accounts: {tracked_accounts}")
-            
             if tracked_accounts:
                 for account in tracked_accounts:
                     tasks.append(update_followers(chat_id, account))
@@ -286,20 +249,17 @@ async def process_all_users():
             logger.error(f"Error processing user {chat_id}: {e}")
 
     if tasks:
-        logger.info(f"Processing {len(tasks)} update tasks")
         # Use asyncio.gather with a timeout to manage long-running tasks
         try:
-            await asyncio.wait_for(asyncio.gather(*tasks, return_exceptions=True), timeout=300)  # 5 minutes timeout
+            await asyncio.wait_for(asyncio.gather(*tasks), timeout=300)  # 5 minutes timeout
         except asyncio.TimeoutError:
             logger.error("Timeout occurred while processing all users.")
     else:
         logger.info("No users or tracked accounts found to process.")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     try:
-        logger.info("Starting update script...")
         asyncio.run(process_all_users())
-        logger.info("Update script completed successfully")
     except Exception as e:
         logger.error(f"An error occurred during the execution of the script: {e}")
-        sys.exit(1)
