@@ -11,7 +11,11 @@ import logging
 from dotenv import load_dotenv
 import random
 
-load_dotenv()
+dotenv_path = '/etc/secrets/.env'
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path=dotenv_path)
+else:
+    load_dotenv()
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
