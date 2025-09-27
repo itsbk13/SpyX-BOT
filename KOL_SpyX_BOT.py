@@ -19,7 +19,7 @@ import sys
 # Use the logger from logger.py
 logger = logging.getLogger('KOL_SpyX_Bot')
 
-# Initialize Flask app for dummy endpoint
+# Initialize Flask app for dummy endpoints
 app = Flask(__name__)
 
 @app.route('/')
