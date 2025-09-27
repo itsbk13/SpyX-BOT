@@ -11,11 +11,36 @@ import httpx
 import logging
 from logger import logger
 import random
+from flask import Flask, request
+from threading import Thread
 import signal
 import sys
+import socket
 
 # Use the logger from logger.py
 logger = logging.getLogger('KOL_SpyX_Bot')
+
+# Initialize Flask app for dummy endpoint
+app = Flask(__name__)
+
+@app.route('/')
+def dummy_endpoint():
+    return "KOL SpyX Bot is running", 200
+
+@app.route('/healthz')
+def health_check():
+    return "OK", 200
+
+def find_free_port(start_port=10000, max_attempts=50):
+    """Find a free port starting from start_port"""
+    for port in range(start_port, start_port + max_attempts):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(('0.0.0.0', port))
+                return port
+        except OSError:
+            continue
+    return None
 
 def retry_request(func, retries=3, initial_delay=5, backoff_factor=2, max_delay=60):
     """Retries a function with exponential backoff in case of NetworkError or TimedOut."""
@@ -63,6 +88,27 @@ def signal_handler(signum, frame):
     logger.info("Received interrupt signal. Shutting down gracefully.")
     sys.exit(0)
 
+def run_flask():
+    """Run Flask server with automatic port selection"""
+    render_port = os.environ.get('PORT')
+    
+    if render_port:
+        # On Render, use the provided port
+        try:
+            port = int(render_port)
+            logger.info(f"Using Render-provided port: {port}")
+            app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
+        except Exception as e:
+            logger.error(f"Failed to start Flask on Render port {port}: {e}")
+    else:
+        # Local development - find free port
+        port = find_free_port()
+        if port:
+            logger.info(f"Starting Flask on free port: {port}")
+            app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
+        else:
+            logger.error("Could not find a free port for Flask server")
+
 def main():
     try:
         # Ensure tables are created
@@ -70,6 +116,15 @@ def main():
         logger.info("Database tables created or already exist.")
     except Exception as e:
         logger.error(f"Error during table creation: {e}")
+
+    # Start Flask server first (required for Render)
+    logger.info("Starting Flask server...")
+    global flask_thread
+    flask_thread = Thread(target=run_flask, daemon=True)
+    flask_thread.start()
+    
+    # Give Flask a moment to start
+    time.sleep(3)
 
     while True:  # Keep the bot running indefinitely
         try:
@@ -95,7 +150,7 @@ def main():
                 continue  # Restart the loop to check internet again
 
             # Run the bot with retry logic for network issues
-            logger.info("Bot started running (no Flask server)")
+            logger.info("Bot started running with polling")
             retry_request(lambda: application.run_polling(
                 drop_pending_updates=True,
                 allowed_updates=["message", "callback_query"]
