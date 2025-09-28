@@ -9,8 +9,8 @@
 - [Getting Started](#getting-started)
 - [Commands Reference](#commands-reference)
 - [Use Cases](#use-cases)
-- [Privacy & Security](#privacy-&-security)
-- [Support & Contact](#support-&-contact)
+- [Privacy and Security](#privacy-and-security)
+- [Support and Contact](#support-and-contact)
 - [Terms of Service](#terms-of-service)
 - [Disclaimer](#disclaimer)
 - [License](#license)
@@ -147,6 +147,7 @@ This bot is designed for monitoring publicly available Twitter data only. Users 
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE)
-
+- This is a licensed project - Refer [LICENSE](LICENSE) for more details.
+- The source code for this project is made available for viewing and educational purposes only.
+- Commercial advantage or Monetary compensation is strictly prohibited.
 ---
