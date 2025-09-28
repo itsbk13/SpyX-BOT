@@ -17,7 +17,7 @@
 
 ## Features
 
-### Real-time Intelligence
+### Real-time Intelligence:
 - **Instant Follow Alerts**: Receive immediate notifications when tracked accounts follow new users
 - **Comprehensive Profiles**: Get detailed information about new followers including:
   - Complete bio and profile details
@@ -25,13 +25,13 @@
   - Location and verification status
   - Direct clickable links to Twitter profiles
 
-### Advanced Monitoring
+### Advanced Monitoring:
 - **Multi-Account Tracking**: Monitor unlimited Twitter accounts simultaneously
 - **Smart Filtering**: Avoid duplicate notifications with intelligent tracking
 - **Historical Data**: Access to follower history and trends
 - **Privacy Focused**: Your tracking data remains completely private
 
-### User Experience
+### User Experience:
 - **Simple Commands**: Easy-to-use Telegram interface
 - **Instant Setup**: Start tracking accounts within seconds
 - **24/7 Monitoring**: Continuous background monitoring
@@ -46,7 +46,7 @@
 3. **Receive instant alerts** when they follow new accounts
 4. **Manage your tracking list** with easy add/remove commands
 
-### Notification Alert
+### Notification Alert:
 ```
 🚨 NEW FOLLOWING ALERT :
 
@@ -65,7 +65,7 @@ Details on Dogecoin:
 
 ## Getting Started
 
-### 👨‍💻 Try the Bot
+### 👨‍💻 Try the Bot:
 
 **Start tracking the most influential accounts!**
 
@@ -91,22 +91,22 @@ Details on Dogecoin:
 
 ## Use Cases
 
-### Crypto & DeFi
+### Crypto & DeFi:
 - Track when crypto influencers follow new projects
 - Monitor VC accounts for investment signals
 - Stay ahead of trending protocols and tokens
 
-### Business Intelligence
+### Business Intelligence:
 - Monitor competitor activities
 - Track industry leader connections
 - Identify emerging partnerships
 
-### Investment Research
+### Investment Research:
 - Follow investor account activities
 - Spot early project endorsements
 - Track market maker movements
 
-### Social Listening
+### Social Listening:
 - Monitor brand mentions and follows
 - Track influencer network growth
 - Identify trending personalities
@@ -124,8 +124,8 @@ Details on Dogecoin:
 
 ## Support & Contact
 
-- **Technical Issues**: [CONTACT](https://t.me/its_bk13)
-- **Business Inquiries**: [MAIL](mailto:barathsrini13@gmail.com)
+- **Technical Issues**: [DM](https://t.me/its_bk13)
+- **Business Inquiries**: [CONTACT](mailto:barathsrini13@gmail.com)
 
 ---
 
